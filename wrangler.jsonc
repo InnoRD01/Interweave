@@ -21,6 +21,6 @@
   ],
   "vars": {
     "PUBLIC_MEDIA_BASE": "/media",
-    "PUBLIC_IMAGE_TRANSFORMS": "false"
+    "PUBLIC_IMAGE_TRANSFORMS": "true"
   }
 }
