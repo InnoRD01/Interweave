@@ -5,10 +5,14 @@ import { r2Image } from './src/keystatic/r2-image';
  * The CMS lives at /keystatic.
  *  - In `npm run dev` it edits files on disk directly.
  *  - On the live site it commits to GitHub; Cloudflare rebuilds on each commit.
+ *  - `npm run cms:github-setup` runs it locally in GitHub mode once, to create
+ *    the GitHub App (Keystatic writes the credentials to .env).
  * Images go to R2 (see src/keystatic/r2-image.tsx), never into Git.
  */
+const useLocalStorage = import.meta.env.DEV && import.meta.env.PUBLIC_KEYSTATIC_STORAGE !== 'github';
+
 export default config({
-  storage: import.meta.env.DEV
+  storage: useLocalStorage
     ? { kind: 'local' }
     : { kind: 'github', repo: { owner: 'InnoRD01', name: 'Interweave' } },
 

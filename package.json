@@ -11,7 +11,8 @@
     "deploy": "astro build && wrangler deploy",
     "check": "astro check",
     "cf-typegen": "wrangler types",
-    "images:upload": "node scripts/upload-images.mjs"
+    "images:upload": "node scripts/upload-images.mjs",
+    "cms:github-setup": "PUBLIC_KEYSTATIC_STORAGE=github INTERWEAVE_NODE_DEV=1 astro dev"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.4",
