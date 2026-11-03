@@ -3,7 +3,7 @@
  *
  * This is the zero-setup path (it also works in `astro dev`, where Wrangler
  * simulates R2 locally). Once the site is live you can attach a custom domain to
- * the bucket (e.g. media.interweave.example) and set PUBLIC_MEDIA_BASE to it; then
+ * the bucket (e.g. media.studiointerweave.com) and set PUBLIC_MEDIA_BASE to it; then
  * Cloudflare's CDN serves originals directly and this route is no longer hit.
  */
 import type { APIRoute } from 'astro';

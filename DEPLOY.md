@@ -3,7 +3,7 @@
 Every step, in order, from this repo to the live domain. The domain currently
 points at the `morepeace` Cloudflare Pages project; these steps move it here.
 
-Throughout, replace `<domain>` with the real domain (e.g. `example.com`).
+The domain is `studiointerweave.com`; `<domain>` below means that.
 
 ---
 

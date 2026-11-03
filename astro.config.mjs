@@ -16,7 +16,7 @@ import keystatic from '@keystatic/astro';
 const NODE_DEV = process.env.INTERWEAVE_NODE_DEV === '1';
 
 export default defineConfig({
-  site: process.env.PUBLIC_SITE_URL || 'https://interweave.example',
+  site: 'https://studiointerweave.com',
 
   // Pages are static by default. Only the CMS admin, the upload API and the
   // /media route run on the Worker (they set `prerender = false`).
@@ -47,7 +47,7 @@ export default defineConfig({
     schema: {
       // Where images are served from. "/media" uses this Worker's R2 binding;
       // in production you can point it at an R2 custom domain instead,
-      // e.g. "https://media.interweave.example".
+      // e.g. "https://media.studiointerweave.com".
       PUBLIC_MEDIA_BASE: envField.string({ context: 'client', access: 'public', default: '/media' }),
       // Turn on once Image Transformations is enabled on the Cloudflare zone.
       PUBLIC_IMAGE_TRANSFORMS: envField.boolean({ context: 'client', access: 'public', default: false }),

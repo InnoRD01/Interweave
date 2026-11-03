@@ -9,6 +9,8 @@
     "binding": "ASSETS"
   },
   "observability": { "enabled": true },
+  // The live domain. Recorded here so every deploy keeps it attached.
+  "routes": [{ "pattern": "studiointerweave.com", "custom_domain": true }],
   "r2_buckets": [
     {
       // Original photographs. Create it once with:
