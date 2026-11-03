@@ -21,6 +21,8 @@
   ],
   "vars": {
     "PUBLIC_MEDIA_BASE": "/media",
-    "PUBLIC_IMAGE_TRANSFORMS": "true"
+    "PUBLIC_IMAGE_TRANSFORMS": "true",
+    // Public name of the Keystatic GitHub App (not a secret).
+    "PUBLIC_KEYSTATIC_GITHUB_APP_SLUG": "interweave-cms"
   }
 }
