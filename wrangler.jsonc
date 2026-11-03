@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "interweave",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "observability": { "enabled": true },
+  "r2_buckets": [
+    {
+      // Original photographs. Create it once with:
+      //   npx wrangler r2 bucket create interweave-media
+      "binding": "MEDIA",
+      "bucket_name": "interweave-media"
+    }
+  ],
+  "vars": {
+    "PUBLIC_MEDIA_BASE": "/media",
+    "PUBLIC_IMAGE_TRANSFORMS": "false"
+  }
+}

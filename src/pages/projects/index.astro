@@ -1,0 +1,178 @@
+---
+/**
+ * Project index with three views (as on OMA, Matter and Zumthor):
+ *   Grid: thumbnails      List: year · title · type · place · status      Map: Sikkim
+ * Plus filters for typology and status. Everything is in the static HTML;
+ * a small script switches views and filters, and remembers them in the URL
+ * (?view=list&type=residential) so a filtered view can be shared as a link.
+ */
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProjects, STATUS_LABEL, TYPOLOGY_LABEL, yearLabel } from '../../lib/projects';
+import { variantUrl } from '../../lib/media';
+
+const projects = await getProjects();
+const types = [...new Set(projects.map((p) => p.data.typology))];
+const statuses = [...new Set(projects.map((p) => p.data.status))];
+
+const mapPoints = projects
+  .filter((p) => p.data.coordinates.lat != null && p.data.coordinates.lng != null)
+  .map((p) => ({
+    slug: p.id,
+    title: p.data.title,
+    year: yearLabel(p),
+    lat: p.data.coordinates.lat,
+    lng: p.data.coordinates.lng,
+    thumb: variantUrl(p.data.cover.key, 480),
+    type: p.data.typology,
+    status: p.data.status,
+  }));
+---
+
+<Base title="Projects" description="Projects by Interweave, an architecture studio in Gangtok, Sikkim.">
+  <div class="wrap">
+    <div class="controls" data-controls>
+      <div class="group" role="group" aria-label="View">
+        <span class="label">View</span>
+        <button data-view="grid" aria-pressed="true">Grid</button>
+        <button data-view="list" aria-pressed="false">List</button>
+        <button data-view="map" aria-pressed="false">Map</button>
+      </div>
+      <div class="group" role="group" aria-label="Filter by type">
+        <span class="label">Type</span>
+        <button data-filter="type" data-value="" aria-pressed="true">All</button>
+        {types.map((t) => <button data-filter="type" data-value={t} aria-pressed="false">{TYPOLOGY_LABEL[t]}</button>)}
+      </div>
+      <div class="group" role="group" aria-label="Filter by status">
+        <span class="label">Status</span>
+        <button data-filter="status" data-value="" aria-pressed="true">All</button>
+        {statuses.map((s) => <button data-filter="status" data-value={s} aria-pressed="false">{STATUS_LABEL[s]}</button>)}
+      </div>
+    </div>
+
+    <p class="empty muted" hidden data-empty>No projects match these filters.</p>
+
+    <section data-panel="grid" class="grid" aria-label="Projects">
+      {
+        projects.map((p, i) => (
+          <div data-item data-type={p.data.typology} data-status={p.data.status}>
+            <ProjectCard project={p} eager={i < 3} />
+          </div>
+        ))
+      }
+    </section>
+
+    <section data-panel="list" hidden aria-label="Project list">
+      <table class="list">
+        <thead>
+          <tr class="label">
+            <th scope="col">Year</th>
+            <th scope="col">Project</th>
+            <th scope="col" class="opt">Type</th>
+            <th scope="col" class="opt">Location</th>
+            <th scope="col" class="opt">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            projects.map((p) => (
+              <tr data-item data-type={p.data.typology} data-status={p.data.status}>
+                <td class="muted">{yearLabel(p)}</td>
+                <td><a href={`/projects/${p.id}`}>{p.data.title}</a></td>
+                <td class="opt muted">{TYPOLOGY_LABEL[p.data.typology]}</td>
+                <td class="opt muted">{p.data.location}</td>
+                <td class="opt muted">{STATUS_LABEL[p.data.status]}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section data-panel="map" hidden aria-label="Project map">
+      <div id="project-map" class="map"></div>
+      <script type="application/json" id="map-data" set:html={JSON.stringify(mapPoints)} />
+    </section>
+  </div>
+</Base>
+
+<style>
+  .controls { display: flex; flex-wrap: wrap; gap: 12px 40px; padding-block: clamp(24px, 4vw, 40px); }
+  .group { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+  .group .label { margin-right: 4px; }
+  button {
+    font: inherit; font-size: var(--step--1); background: none; border: 0; padding: 4px 0;
+    color: var(--muted); cursor: pointer;
+  }
+  button[aria-pressed='true'] { color: var(--fg); text-decoration: underline; text-underline-offset: 0.3em; }
+  button:hover { color: var(--fg); }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(32px, 4vw, 56px) var(--gap); }
+  @media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+
+  .list { width: 100%; border-collapse: collapse; }
+  .list th { text-align: left; font-weight: 400; padding: 0 16px 8px 0; }
+  .list td { padding: 10px 16px 10px 0; border-top: 1px solid var(--rule); vertical-align: top; }
+  .list td:first-child { width: 7.5rem; white-space: nowrap; }
+  @media (max-width: 720px) { .list .opt { display: none; } }
+
+  .map { height: min(75vh, 760px); background: var(--rule); }
+  [hidden] { display: none !important; }
+</style>
+
+<script>
+  type View = 'grid' | 'list' | 'map';
+  const params = new URLSearchParams(location.search);
+  const state = {
+    view: (['grid', 'list', 'map'].includes(params.get('view') ?? '') ? params.get('view') : 'grid') as View,
+    type: params.get('type') ?? '',
+    status: params.get('status') ?? '',
+  };
+  let mapReady = false;
+
+  function render() {
+    document.querySelectorAll<HTMLElement>('[data-panel]').forEach((el) => (el.hidden = el.dataset.panel !== state.view));
+    document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach((b) =>
+      b.setAttribute('aria-pressed', String(b.dataset.view === state.view)),
+    );
+    document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((b) => {
+      const key = b.dataset.filter as 'type' | 'status';
+      b.setAttribute('aria-pressed', String(state[key] === b.dataset.value));
+    });
+    let visible = 0;
+    document.querySelectorAll<HTMLElement>(`[data-panel="${state.view === 'map' ? 'grid' : state.view}"] [data-item]`).forEach((el) => {
+      const show = (!state.type || el.dataset.type === state.type) && (!state.status || el.dataset.status === state.status);
+      el.hidden = !show;
+      if (show) visible++;
+    });
+    (document.querySelector('[data-empty]') as HTMLElement).hidden = visible > 0 || state.view === 'map';
+    if (state.view === 'map') showMap();
+
+    const q = new URLSearchParams();
+    if (state.view !== 'grid') q.set('view', state.view);
+    if (state.type) q.set('type', state.type);
+    if (state.status) q.set('status', state.status);
+    history.replaceState(null, '', q.size ? `?${q}` : location.pathname);
+  }
+
+  let mapApi: { filter(type: string, status: string): void } | undefined;
+  async function showMap() {
+    if (!mapReady) {
+      mapReady = true;
+      const { initMap } = await import('../../lib/project-map');
+      const points = JSON.parse(document.getElementById('map-data')!.textContent!);
+      mapApi = initMap(document.getElementById('project-map')!, points);
+    }
+    mapApi?.filter(state.type, state.status);
+  }
+
+  document.querySelector('[data-controls]')!.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('button');
+    if (!b) return;
+    if (b.dataset.view) state.view = b.dataset.view as View;
+    if (b.dataset.filter) state[b.dataset.filter as 'type' | 'status'] = b.dataset.value ?? '';
+    render();
+  });
+  render();
+</script>

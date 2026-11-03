@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+import Picture from '../components/Picture.astro';
+import studio from '../content/studio.json';
+import type { MediaImage } from '../lib/media';
+
+const paragraphs = (studio.approach ?? '').split(/\n\s*\n/).filter(Boolean);
+---
+
+<Base title="Studio" description={studio.statement}>
+  <header class="wrap page-head">
+    <h1 class="statement">{studio.statement}</h1>
+  </header>
+
+  <section class="wrap two">
+    <h2 class="label">Approach</h2>
+    <div class="prose">{paragraphs.map((p) => <p>{p}</p>)}</div>
+  </section>
+
+  {
+    studio.domains?.length > 0 && (
+      <section class="wrap two">
+        <h2 class="label">Areas of work</h2>
+        <ul class="domains">{studio.domains.map((d) => <li>{d}</li>)}</ul>
+      </section>
+    )
+  }
+
+  {
+    studio.people?.length > 0 && (
+      <section class="wrap two">
+        <h2 class="label">People</h2>
+        <ul class="people">
+          {studio.people.map((p) => (
+            <li>
+              {p.portrait && <Picture image={p.portrait as MediaImage} alt={p.name} sizes="240px" />}
+              <strong>{p.name}</strong>
+              <span class="muted">{p.role}</span>
+              {p.bio && <p class="small">{p.bio}</p>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .statement { font-size: var(--step-2); max-width: 32ch; line-height: 1.25; }
+  .two {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    gap: var(--gap);
+    padding-block: clamp(28px, 4vw, 48px);
+    border-top: 1px solid var(--rule);
+  }
+  .domains, .people { list-style: none; margin: 0; padding: 0; }
+  .domains { font-size: var(--step-1); columns: 2; }
+  .people { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--gap); }
+  .people li { display: grid; gap: 2px; }
+  .people :global(img) { aspect-ratio: 4 / 5; object-fit: cover; margin-bottom: 8px; }
+  @media (max-width: 720px) {
+    .two { grid-template-columns: 1fr; }
+    .domains { columns: 1; }
+  }
+</style>

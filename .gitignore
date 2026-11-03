@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+.dev.vars
+.env
+.env.*
+!.env.example
+.DS_Store
+# Photographs belong in R2, never in Git. Drop shoots here for the bulk uploader.
+/photos/

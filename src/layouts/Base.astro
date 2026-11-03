@@ -1,0 +1,44 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import settings from '../content/settings.json';
+import { variantUrl, type MediaImage } from '../lib/media';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: MediaImage;
+}
+
+const { title, description = settings.description, image } = Astro.props;
+const fullTitle = title ? `${title} | ${settings.name}` : `${settings.name}: ${settings.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image && !image.key.endsWith('.svg') ? new URL(variantUrl(image.key, 1200), Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a class="sr-only" href="#main">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

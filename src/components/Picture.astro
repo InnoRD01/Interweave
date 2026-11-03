@@ -1,0 +1,28 @@
+---
+import { srcset, variantUrl, type MediaImage } from '../lib/media';
+
+interface Props {
+  image: MediaImage;
+  alt: string;
+  /** The `sizes` attribute: how wide the image renders at each breakpoint. */
+  sizes?: string;
+  /** Load immediately (use for the first image above the fold only). */
+  eager?: boolean;
+  class?: string;
+}
+
+const { image, alt, sizes = '100vw', eager = false, class: className } = Astro.props;
+---
+
+<img
+  class={className}
+  src={variantUrl(image.key, 1200)}
+  srcset={srcset(image)}
+  sizes={sizes}
+  width={image.w}
+  height={image.h}
+  alt={alt}
+  loading={eager ? 'eager' : 'lazy'}
+  decoding="async"
+  fetchpriority={eager ? 'high' : 'auto'}
+/>

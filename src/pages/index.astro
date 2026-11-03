@@ -1,0 +1,46 @@
+---
+/**
+ * Home: selected work, nothing else (the pattern shared by Matter, Zumthor and OMA).
+ * Projects with "Show on home page" ticked in the CMS appear here.
+ */
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getProjects } from '../lib/projects';
+
+const featured = (await getProjects()).filter((p) => p.data.featured);
+// Alternate wide/narrow pairs for rhythm: 7+5, 5+7, …
+const span = (i: number) => (Math.floor(i / 2) % 2 === 0 ? (i % 2 === 0 ? 7 : 5) : i % 2 === 0 ? 5 : 7);
+---
+
+<Base>
+  <section class="wrap home-grid" aria-label="Selected work">
+    {
+      featured.map((project, i) => (
+        <div class="cell fade" style={`--span:${span(i)}`}>
+          <ProjectCard
+            project={project}
+            crop={false}
+            eager={i < 2}
+            sizes={`(max-width: 720px) 100vw, ${Math.round((span(i) / 12) * 100)}vw`}
+          />
+        </div>
+      ))
+    }
+  </section>
+  <p class="wrap all"><a href="/projects">All projects →</a></p>
+</Base>
+
+<style>
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(32px, 5vw, 80px) var(--gap);
+    padding-top: clamp(24px, 4vw, 48px);
+    align-items: end;
+  }
+  .cell { grid-column: span var(--span); }
+  .all { margin-top: clamp(40px, 6vw, 80px); }
+  @media (max-width: 720px) {
+    .cell { grid-column: 1 / -1; }
+  }
+</style>

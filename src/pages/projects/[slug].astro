@@ -1,0 +1,145 @@
+---
+/**
+ * Project page, in the order the reference sites share:
+ *   title · year → lead image → narrative + facts → site & climate
+ *   → image sequence with captions and credits → next project
+ */
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Picture from '../../components/Picture.astro';
+import { getProjects, STATUS_LABEL, TYPOLOGY_LABEL, yearLabel, type Project } from '../../lib/projects';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: { project, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+const { project, next } = Astro.props as { project: Project; next: Project };
+const { data } = project;
+const { Content } = await render(project);
+
+const facts = [
+  ['Location', data.location],
+  ['Typology', TYPOLOGY_LABEL[data.typology]],
+  ['Status', STATUS_LABEL[data.status]],
+  ['Year', yearLabel(project)],
+  ['Client', data.client],
+  ['Site area', data.siteArea],
+  ['Built-up area', data.builtArea],
+  ['Design team', data.team],
+  ...data.collaborators.map((c) => [c.role, c.name]),
+].filter(([, v]) => v);
+
+const climate = [
+  ['Altitude', data.site.altitude],
+  ['Annual rainfall', data.site.rainfall],
+  ['Temperature', data.site.temperature],
+  ['Terrain', data.site.terrain],
+].filter(([, v]) => v);
+---
+
+<Base title={data.title} description={data.summary} image={data.cover}>
+  <article>
+    <header class="wrap page-head">
+      <h1>{data.title} <span class="year muted">{yearLabel(project)}</span></h1>
+      {data.location && <p class="muted loc">{data.location}</p>}
+    </header>
+
+    <figure class="wrap lead">
+      <Picture image={data.cover} alt={data.coverAlt || data.title} eager sizes="(max-width: 1680px) 100vw, 1680px" />
+    </figure>
+
+    <div class="wrap intro">
+      <div class="prose"><Content /></div>
+      <aside>
+        <h2 class="label">Information</h2>
+        <table class="facts">
+          <tbody>{facts.map(([k, v]) => <tr><th scope="row">{k}</th><td>{v}</td></tr>)}</tbody>
+        </table>
+      </aside>
+    </div>
+
+    {
+      (climate.length > 0 || data.site.notes) && (
+        <section class="wrap site" aria-labelledby="site-h">
+          <h2 id="site-h" class="label">Site &amp; climate</h2>
+          <dl>
+            {climate.map(([k, v]) => (
+              <div>
+                <dt class="small muted">{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+          {data.site.notes && <p class="prose">{data.site.notes}</p>}
+        </section>
+      )
+    }
+
+    <section class="wrap gallery" aria-label="Images">
+      {
+        data.gallery.map((item) => (
+          <figure class={item.layout}>
+            <Picture
+              image={item.image}
+              alt={item.alt || item.caption || data.title}
+              sizes={item.layout === 'full' ? '100vw' : item.layout === 'half' ? '(max-width: 720px) 100vw, 50vw' : '(max-width: 720px) 100vw, 60vw'}
+            />
+            {(item.caption || item.credit) && (
+              <figcaption class="small muted">
+                {item.caption}
+                {item.caption && item.credit && ' · '}
+                {item.credit && <span>Photo: {item.credit}</span>}
+              </figcaption>
+            )}
+          </figure>
+        ))
+      }
+    </section>
+
+    <nav class="wrap next" aria-label="Next project">
+      <span class="label">Next project</span>
+      <a href={`/projects/${next.id}`}>{next.data.title} →</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .page-head { padding-bottom: clamp(20px, 3vw, 32px); }
+  .year { font-size: 0.5em; font-weight: 400; margin-left: 0.25em; }
+  .loc { margin: 10px 0 0; }
+  .lead { margin: 0 auto; }
+  .lead :global(img) { width: 100%; }
+
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(32px, 6vw, 96px);
+    padding-block: clamp(40px, 6vw, 80px);
+  }
+  aside h2 { margin-bottom: 12px; }
+
+  .site { padding-bottom: clamp(40px, 6vw, 80px); }
+  .site h2 { margin-bottom: 16px; }
+  dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap); margin: 0 0 24px; border-top: 1px solid var(--rule); padding-top: 16px; }
+  dd { margin: 4px 0 0; font-size: var(--step-1); }
+
+  .gallery { display: grid; grid-template-columns: repeat(12, 1fr); gap: clamp(32px, 5vw, 72px) var(--gap); }
+  figure { margin: 0; }
+  figure :global(img) { width: 100%; }
+  figcaption { padding-top: 8px; }
+  .full { grid-column: 1 / -1; }
+  .half { grid-column: span 6; }
+  .inset { grid-column: 3 / span 8; }
+
+  .next { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: clamp(64px, 8vw, 120px); padding-top: 20px; border-top: 1px solid var(--rule); font-size: var(--step-2); }
+
+  @media (max-width: 860px) {
+    .intro { grid-template-columns: 1fr; }
+    dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .half, .inset { grid-column: 1 / -1; }
+  }
+</style>

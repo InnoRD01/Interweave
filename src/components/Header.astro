@@ -1,0 +1,80 @@
+---
+import settings from '../content/settings.json';
+
+const nav = [
+  { href: '/projects', label: 'Projects' },
+  { href: '/studio', label: 'Studio' },
+  { href: '/contact', label: 'Contact' },
+];
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => path === href || path.startsWith(href + '/');
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a href="/" class="mark" aria-label={`${settings.name}, home`}>
+      <span class="name">{settings.name}</span>
+      {settings.tagline && <span class="tagline">{settings.tagline}</span>}
+    </a>
+    <nav aria-label="Main">
+      <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <ul id="site-nav">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar { display: flex; align-items: center; justify-content: space-between; min-height: var(--header-h); gap: 16px; }
+  .mark { display: flex; align-items: baseline; gap: 12px; }
+  .mark:hover { text-decoration: none; }
+  .name { font-size: var(--step-1); font-weight: 500; letter-spacing: 0.02em; }
+  .tagline { font-size: var(--step--1); color: var(--muted); }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; gap: clamp(16px, 2.5vw, 32px); }
+  a[aria-current='page'] { text-decoration: underline; text-underline-offset: 0.3em; }
+  .menu-toggle { display: none; font: inherit; background: none; border: 0; padding: 8px 0; color: inherit; cursor: pointer; }
+
+  @media (max-width: 720px) {
+    .tagline { display: none; }
+    .menu-toggle { display: block; }
+    ul {
+      display: none;
+      position: absolute;
+      inset: var(--header-h) 0 auto 0;
+      flex-direction: column;
+      gap: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--rule);
+      padding: 8px var(--gutter) 16px;
+    }
+    ul a { display: block; padding: 10px 0; font-size: var(--step-2); }
+    nav.open ul { display: flex; }
+  }
+</style>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('.site-header nav');
+  const btn = nav?.querySelector<HTMLButtonElement>('.menu-toggle');
+  btn?.addEventListener('click', () => {
+    const open = nav!.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? 'Close' : 'Menu';
+  });
+</script>

@@ -1,0 +1,36 @@
+---
+/** Contact: just the facts (Studio Mumbai's whole site is this page). */
+import Base from '../layouts/Base.astro';
+import contact from '../content/contact.json';
+import settings from '../content/settings.json';
+---
+
+<Base title="Contact" description={`Contact ${settings.name}, ${contact.address?.split('\n').slice(-2).join(', ')}`}>
+  <div class="wrap page-head">
+    <h1>Contact</h1>
+  </div>
+  <div class="wrap cols">
+    <address>
+      <p class="label">Studio</p>
+      {contact.address?.split('\n').map((line) => <span>{line}<br /></span>)}
+      {contact.mapsUrl && <p><a href={contact.mapsUrl}>Open in Maps →</a></p>}
+    </address>
+    <div>
+      <p class="label">Write / call</p>
+      {contact.email && <p><a href={`mailto:${contact.email}`}>{contact.email}</a></p>}
+      {contact.phone && <p><a href={`tel:${contact.phone.replace(/\s+/g, '')}`}>{contact.phone}</a></p>}
+      {settings.instagram && <p><a href={settings.instagram}>Instagram</a></p>}
+    </div>
+    <div>
+      {contact.enquiries && (<><p class="label">New projects</p><p>{contact.enquiries}</p></>)}
+      {contact.careers && (<><p class="label">Careers</p><p>{contact.careers}</p></>)}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); font-size: var(--step-1); }
+  address { font-style: normal; }
+  .label { margin-bottom: 8px; }
+  @media (max-width: 860px) { .cols { grid-template-columns: 1fr; gap: 32px; } }
+</style>

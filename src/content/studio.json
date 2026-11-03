@@ -1,0 +1,26 @@
+{
+  "statement": "Placeholder statement. One or two sentences on what the studio believes, written in their voice.",
+  "approach": "Placeholder paragraph on how the studio works: with sites, climate, craft and communities in Sikkim.\n\nA second paragraph on process, collaborators and materials.",
+  "domains": [
+    "Residences",
+    "Hospitality",
+    "Institutions",
+    "Cultural buildings",
+    "Interiors",
+    "Landscape & site planning"
+  ],
+  "people": [
+    {
+      "name": "Placeholder Name",
+      "role": "Principal Architect",
+      "bio": "Short bio.",
+      "portrait": null
+    },
+    {
+      "name": "Placeholder Name",
+      "role": "Architect",
+      "bio": "Short bio.",
+      "portrait": null
+    }
+  ]
+}

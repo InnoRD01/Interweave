@@ -1,0 +1,31 @@
+---
+import Picture from './Picture.astro';
+import { yearLabel, type Project } from '../lib/projects';
+
+interface Props {
+  project: Project;
+  sizes?: string;
+  eager?: boolean;
+  /** Crop to a common ratio (index grid) or keep the photo's own (home). */
+  crop?: boolean;
+}
+const { project, sizes = '(max-width: 720px) 100vw, 33vw', eager = false, crop = true } = Astro.props;
+const { data } = project;
+---
+
+<a class:list={['card', { crop }]} href={`/projects/${project.id}`}>
+  <Picture image={data.cover} alt={data.coverAlt || data.title} sizes={sizes} eager={eager} />
+  <span class="meta">
+    <span class="title">{data.title}</span>
+    <span class="year muted">{yearLabel(project)}</span>
+  </span>
+</a>
+
+<style>
+  .card { display: block; }
+  .card:hover { text-decoration: none; }
+  .card :global(img) { width: 100%; transition: opacity 0.3s ease; }
+  .card:hover :global(img) { opacity: 0.88; }
+  .crop :global(img) { aspect-ratio: 4 / 3; object-fit: cover; }
+  .meta { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; font-size: var(--step--1); letter-spacing: 0.02em; }
+</style>

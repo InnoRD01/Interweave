@@ -1,0 +1,21 @@
+---
+import settings from '../content/settings.json';
+import contact from '../content/contact.json';
+---
+
+<footer class="site-footer">
+  <div class="wrap row small">
+    <span>© {new Date().getFullYear()} {settings.name}, Gangtok</span>
+    <ul>
+      {contact.email && <li><a href={`mailto:${contact.email}`}>Email</a></li>}
+      {settings.instagram && <li><a href={settings.instagram} rel="me">Instagram</a></li>}
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer { border-top: 1px solid var(--rule); margin-top: clamp(64px, 10vw, 160px); }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-block: 20px; }
+  ul { list-style: none; display: flex; gap: 20px; margin: 0; padding: 0; }
+</style>
