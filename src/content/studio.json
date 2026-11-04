@@ -1,5 +1,5 @@
 {
-  "statement": "Placeholder statement. One or two sentences on what the studio believes, written in their voice.",
+  "statement": "An architecture studio in gangtok thaat uses sustainable materials. ",
   "approach": "Placeholder paragraph on how the studio works: with sites, climate, craft and communities in Sikkim.\n\nA second paragraph on process, collaborators and materials.",
   "domains": [
     "Residences",
@@ -11,16 +11,19 @@
   ],
   "people": [
     {
-      "name": "Placeholder Name",
+      "name": "test font",
       "role": "Principal Architect",
-      "bio": "Short bio.",
-      "portrait": null
+      "bio": "trying out an image and text for cms\n",
+      "portrait": {
+        "key": "people/run-ad0a2345.jpg",
+        "w": 1200,
+        "h": 3200
+      }
     },
     {
-      "name": "Placeholder Name",
-      "role": "Architect",
-      "bio": "Short bio.",
-      "portrait": null
+      "name": "Kailash Pradhan",
+      "role": "Founder",
+      "bio": "Urbanist, Architect, "
     }
   ]
 }
